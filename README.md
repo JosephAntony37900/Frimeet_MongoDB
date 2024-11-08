@@ -2,11 +2,11 @@
 
 # API_MongoDB_Frimeet
 
-## En proceso de desarrollo para la app-web "FRIMEET"....
+## En proceso de desarrollo para la app-web "FRIMEET" web de recomendaciones de salidas, eventos, actividades,etc.
 
 ## Descripción
 
-Esta API proporciona una manera eficiente y organizada de gestionar información sobre usuarios, lugares y eventos, utilizando MongoDB como base de datos y Mongoose como ORM para manejar la interacción con los datos. La API incluye funcionalidades completas de CRUD (Crear, Leer, Actualizar, Borrar) para cada entidad (usuarios, lugares y eventos), asegurando integridad y consistencia en los datos a través de relaciones referenciales.
+Esta API proporciona una manera eficiente y organizada de gestionar información sobre usuarios (De prueba ya que usuarios proviene de la BD postgres), lugares y eventos, utilizando MongoDB como base de datos y Mongoose como ORM para manejar la interacción con los datos. La API incluye funcionalidades completas de CRUD (Crear, Leer, Actualizar, Borrar) para cada entidad (usuarios, lugares y eventos), asegurando integridad y consistencia en los datos a través de relaciones referenciales.
 
 ## Características
 
@@ -132,8 +132,3 @@ Content-Type: application/json
 }
 ```
 
-
-## Licencia
-
-Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles.
-```
