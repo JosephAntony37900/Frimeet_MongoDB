@@ -1,6 +1,8 @@
 
 
-# API_MongoDB
+# API_MongoDB_Frimeet
+
+## En proceso de desarrollo para la app-web "FRIMEET"....
 
 ## Descripción
 
@@ -135,5 +137,3 @@ Content-Type: application/json
 
 Este proyecto está licenciado bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles.
 ```
-
-Espero que este README cumpla con tus expectativas. Si necesitas más ajustes o alguna otra información, solo dime. ¡Estoy aquí para ayudarte! 🚀😊
