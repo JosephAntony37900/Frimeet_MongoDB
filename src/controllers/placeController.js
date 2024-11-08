@@ -1,5 +1,7 @@
 const Place = require('../models/Place');
-const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
+const cloudinary = require('../config/cloudinary');
+const path = require('path')
 
 // Obtener todos los lugares
 exports.getPlaces = async (req, res) => {
@@ -13,24 +15,38 @@ exports.getPlaces = async (req, res) => {
 
 // Crear un nuevo lugar
 exports.createPlace = async (req, res) => {
-  const newPlace = new Place({
-    name: req.body.name,
-    description: req.body.description,
-    address: req.body.address,
-    tag: req.body.tag,
-    images: req.body.images || []
-  });
-
-  try {
-    const result = await newPlace.save();
-    res.status(201).json({
-      message: "Lugar creado exitosamente",
-      placeId: result._id,
-    });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
+    const { name, description, address, tag, images } = req.body;
+    let imageUrls = [];
+  
+    try {
+      // Subir imágenes a Cloudinary
+      if (images && images.length > 0) {
+        for (let image of images) {
+          // Convierte la ruta relativa a absoluta si es necesario
+          const absolutePath = path.resolve(image);
+          const result = await cloudinary.uploader.upload(absolutePath);
+          imageUrls.push(result.secure_url);
+        }
+      }
+  
+      const newPlace = new Place({
+        name,
+        description,
+        address,
+        tag,
+        images: imageUrls
+      });
+  
+      const result = await newPlace.save();
+      res.status(201).json({
+        message: "Lugar creado exitosamente",
+        placeId: result._id,
+      });
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  };
+  
 
 // Obtener un lugar por ID
 exports.getPlaceById = async (req, res) => {
