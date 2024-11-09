@@ -36,7 +36,7 @@ Esta API proporciona una manera eficiente y organizada de gestionar información
 
 1. Clona el repositorio:
    ```bash
-   git clone https://github.com/JosephAntony37900/Frimeet_MongoDB
+   git clone https://github.com/JosephAntony37900/Frimeet_MongoDB.git
    cd API_MongoDB
    ```
 
@@ -56,7 +56,7 @@ Esta API proporciona una manera eficiente y organizada de gestionar información
 
 4. Inicia el servidor:
    ```bash
-   npm start
+   npm run dev
    ```
 
 ## Endpoints Disponibles
