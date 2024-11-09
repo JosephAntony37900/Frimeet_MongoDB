@@ -36,7 +36,7 @@ Esta API proporciona una manera eficiente y organizada de gestionar información
 
 1. Clona el repositorio:
    ```bash
-   git clone https://github.com/tu-usuario/API_MongoDB.git
+   git clone https://github.com/JosephAntony37900/Frimeet_MongoDB
    cd API_MongoDB
    ```
 
