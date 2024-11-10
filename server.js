@@ -1,6 +1,5 @@
 const express = require('express');
-const { connectDB } = require('./config');
-const { pool } = require('./config')
+const { connectDB, pool } = require('./config');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -12,18 +11,30 @@ app.use(express.json());
 
 const startServer = async () => {
   await connectDB();
-  pool.connect();
-  const userRoutes = require('./src/routes/userRoutes'); 
-  const placeRoutes = require('./src/routes/placeRoutes'); 
+
+  // Conecta a PostgreSQL solo si pool está definido
+  if (pool) {
+    try {
+      await pool.connect();
+      console.log('Conexión a PostgreSQL realizada');
+    } catch (error) {
+      console.warn('Advertencia: No se pudo conectar a PostgreSQL');
+    }
+  }
+
+  // Rutas
+  const userRoutes = require('./src/routes/userRoutes');
+  const placeRoutes = require('./src/routes/placeRoutes');
   const eventRoutes = require('./src/routes/eventRoutes');
   const reviewRoutes = require('./src/routes/reviewsRoutes');
-  const reminderRoutes = require('./src/routes/reminderRoutes')
-  app.use('/api/users', userRoutes); 
+  const reminderRoutes = require('./src/routes/reminderRoutes');
+  app.use('/api/users', userRoutes);
   app.use('/api/places', placeRoutes);
   app.use('/api/events', eventRoutes);
   app.use('/api/reviews', reviewRoutes);
   app.use('/api/reminders', reminderRoutes);
-  
+
+  // Inicia el servidor
   app.listen(port, () => {
     console.log(`API activa en http://localhost:${port}`);
   });

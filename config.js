@@ -9,22 +9,30 @@ const pgUri = process.env.POSTGRES_URL;
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(uri, {
-      
-    });
-    console.log('Conectado a la base de datos');
+    await mongoose.connect(uri);
+    console.log('Conectado a la base de datos de MongoDB');
   } catch (err) {
-    console.error('Error conectando a la base de datos:', err);
-    process.exit(1);
+    console.error('Error conectando a MongoDB:', err);
+    process.exit(1); 
   }
 };
 
-const pool = new Pool({
-  connectionString: pgUri,
-})
-
-pool.on('connect', () => {
-   console.log('Conectado a PostgreSQL'); 
+// Conexión opcional a PostgreSQL
+let pool;
+if (pgUri) {
+  pool = new Pool({
+    connectionString: pgUri,
   });
+
+  pool.on('connect', () => {
+    console.log('Conectado a PostgreSQL');
+  });
+
+  pool.on('error', (err) => {
+    console.error('Error conectando a PostgreSQL:', err.message);
+  });
+} else {
+  console.log('URL de PostgreSQL no proporcionada. No se realizará la conexión a PostgreSQL.');
+}
 
 module.exports = { connectDB, pool };
