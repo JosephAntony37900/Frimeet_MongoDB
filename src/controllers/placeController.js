@@ -15,7 +15,7 @@ exports.getPlaces = async (req, res) => {
 
 // Crear un nuevo lugar
 exports.createPlace = async (req, res) => {
-    const { name, description, address, tag, images } = req.body;
+    const { name, description, address, tag, images, types } = req.body;
     let imageUrls = [];
   
     try {
@@ -34,6 +34,7 @@ exports.createPlace = async (req, res) => {
         description,
         address,
         tag,
+        types,
         images: imageUrls
       });
   

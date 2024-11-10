@@ -1,5 +1,6 @@
 const express = require('express');
 const { connectDB } = require('./config');
+const { pool } = require('./config')
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -11,12 +12,15 @@ app.use(express.json());
 
 const startServer = async () => {
   await connectDB();
+  pool.connect();
   const userRoutes = require('./src/routes/userRoutes'); 
   const placeRoutes = require('./src/routes/placeRoutes'); 
   const eventRoutes = require('./src/routes/eventRoutes');
+  const reviewRoutes = require('./src/routes/reviewsRoutes');
   app.use('/api/users', userRoutes); 
   app.use('/api/places', placeRoutes);
   app.use('/api/events', eventRoutes);
+  app.use('/api/reviews', reviewRoutes);
   
   app.listen(port, () => {
     console.log(`API activa en http://localhost:${port}`);

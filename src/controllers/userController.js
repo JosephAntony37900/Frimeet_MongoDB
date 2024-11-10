@@ -6,17 +6,9 @@ const { mongoose } = require('mongoose');
 
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
-const authenticateToken = (req, res, next) => {
-  const token = req.headers['authorization'] && req.headers['authorization'].split(' ')[1];
-  if (!token) return res.sendStatus(401); 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
-    next();
-  });
-};
+
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.find(); 
@@ -59,7 +51,7 @@ exports.loginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: 'Correo electrónico o contraseña incorrectos' });
     }
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET_KEY, { expiresIn: '1h' });
     res.json({
       message: 'Inicio de sesión exitoso',
       userId: user._id,
@@ -99,4 +91,4 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-module.exports.authenticateToken = authenticateToken;
+
