@@ -17,10 +17,12 @@ const startServer = async () => {
   const placeRoutes = require('./src/routes/placeRoutes'); 
   const eventRoutes = require('./src/routes/eventRoutes');
   const reviewRoutes = require('./src/routes/reviewsRoutes');
+  const reminderRoutes = require('./src/routes/reminderRoutes')
   app.use('/api/users', userRoutes); 
   app.use('/api/places', placeRoutes);
   app.use('/api/events', eventRoutes);
   app.use('/api/reviews', reviewRoutes);
+  app.use('/api/reminders', reminderRoutes);
   
   app.listen(port, () => {
     console.log(`API activa en http://localhost:${port}`);
