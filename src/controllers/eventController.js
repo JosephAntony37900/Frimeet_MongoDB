@@ -20,6 +20,7 @@ exports.createEvent = async (req, res) => {
   let imageUrls = [];
 
   try {
+    console.log('Datos recibidos:', req.body);
     // Obtener la dirección del lugar relacionado
     const place = await Place.findById(idPlace);
     if (!place) {
@@ -34,7 +35,7 @@ exports.createEvent = async (req, res) => {
         imageUrls.push(result.secure_url);
       }
     }
-
+    console.log('URL de imágenes:', imageUrls);
     const newEvent = new Event({
       name,
       maxPeoples,
