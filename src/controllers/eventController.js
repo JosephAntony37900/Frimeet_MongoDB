@@ -16,7 +16,7 @@ exports.getEvents = async (req, res) => {
 
 // Crear un nuevo evento
 exports.createEvent = async (req, res) => {
-  const { name, maxPeoples, idPlace, date, description, price, images } = req.body;
+  const { name, maxPeoples, idPlace, date, description, price } = req.body;
   let imageUrls = [];
 
   try {
@@ -28,14 +28,25 @@ exports.createEvent = async (req, res) => {
     }
 
     // Subir imágenes a Cloudinary
-    if (images && images.length > 0) {
-      for (let image of images) {
-        const absolutePath = path.resolve(image);
-        const result = await cloudinary.uploader.upload(absolutePath);
-        imageUrls.push(result.secure_url);
+    if (req.files && req.files.length > 0) {
+      for (let file of req.files) {
+        await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({ folder: 'events' },
+            (error, result) => {
+              if (result) {
+                imageUrls.push(result.secure_url);
+                resolve();
+              } else {
+                console.error('Error subiendo imagen a Cloudinary:', error);
+                reject(new Error('Error al subir la imagen'));
+              }
+            });
+          stream.end(file.buffer);
+        });
       }
     }
     console.log('URL de imágenes:', imageUrls);
+
     const newEvent = new Event({
       name,
       maxPeoples,
@@ -53,9 +64,10 @@ exports.createEvent = async (req, res) => {
       eventId: result._id,
     });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
+
 
 // Obtener un evento por ID
 exports.getEventById = async (req, res) => {
