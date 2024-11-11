@@ -1,6 +1,7 @@
 const express = require('express');
 const { connectDB, pool } = require('./config');
 const dotenv = require('dotenv');
+const cors = require('cors')
 
 dotenv.config();
 
@@ -8,6 +9,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+
+app.use(cors())
 
 const startServer = async () => {
   await connectDB();
