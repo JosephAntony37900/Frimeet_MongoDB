@@ -15,38 +15,48 @@ exports.getPlaces = async (req, res) => {
 
 // Crear un nuevo lugar
 exports.createPlace = async (req, res) => {
-    const { name, description, address, tag, images, types } = req.body;
-    let imageUrls = [];
-  
-    try {
-      // Subir imágenes a Cloudinary
-      if (images && images.length > 0) {
-        for (let image of images) {
-          // Convierte la ruta relativa a absoluta si es necesario
-          const absolutePath = path.resolve(image);
-          const result = await cloudinary.uploader.upload(absolutePath);
-          imageUrls.push(result.secure_url);
-        }
+  const { name, description, address, tag, types } = req.body;
+  let imageUrls = [];
+
+  try {
+    if (req.files && req.files.length > 0) {
+      for (let file of req.files) {
+        await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({ folder: 'places' },
+            (error, result) => {
+              if (result) {
+                imageUrls.push(result.secure_url);
+                resolve();
+              } else {
+                console.error('Error subiendo imagen a Cloudinary:', error);
+                reject(new Error('Error al subir la imagen'));
+              }
+            });
+          stream.end(file.buffer);
+        });
       }
-  
-      const newPlace = new Place({
-        name,
-        description,
-        address,
-        tag,
-        types,
-        images: imageUrls
-      });
-  
-      const result = await newPlace.save();
-      res.status(201).json({
-        message: "Lugar creado exitosamente",
-        placeId: result._id,
-      });
-    } catch (err) {
-      res.status(400).json({ message: err.message });
     }
-  };
+
+    const newPlace = new Place({
+      name,
+      description,
+      address,
+      tag,
+      types,
+      images: imageUrls,
+    });
+
+    const savedPlace = await newPlace.save();
+    res.status(201).json({
+      message: "Lugar creado exitosamente",
+      placeId: savedPlace._id,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
   
 
 // Obtener un lugar por ID

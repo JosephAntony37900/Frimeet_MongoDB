@@ -1,7 +1,9 @@
 const express = require('express');
 const { connectDB, pool } = require('./config');
 const dotenv = require('dotenv');
-const cors = require('cors')
+const cors = require('cors');
+const multer = require('multer');
+const upload = multer();
 
 dotenv.config();
 
@@ -11,9 +13,12 @@ const port = process.env.PORT || 3000;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-app.use(cors({ 
-   origin: '*'
-  }));
+app.use(cors({
+  origin: 'http://localhost:4200',
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization',
+  credentials: true
+}));
 
 const startServer = async () => {
   await connectDB();
