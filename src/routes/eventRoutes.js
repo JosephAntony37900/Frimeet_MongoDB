@@ -4,11 +4,11 @@ const eventController = require('../controllers/eventController');
 const authenticate = require('../controllers/authenticate');
 
 //Atenticación para usuario de prueba
-router.get('/', authenticate.authenticateTokenMongoDB, eventController.getEvents);
-router.post('/', authenticate.authenticateTokenMongoDB, eventController.createEvent);
-router.get('/:id', authenticate.authenticateTokenMongoDB, eventController.getEventById);
-router.put('/:id', authenticate.authenticateTokenMongoDB, eventController.updateEvent);
-router.delete('/delete/:id', authenticate.authenticateTokenMongoDB, eventController.deleteEvent);
+router.get('/', eventController.getEvents);
+router.post('/', eventController.createEvent);
+router.get('/:id', eventController.getEventById);
+router.put('/:id', eventController.updateEvent);
+router.delete('/delete/:id', eventController.deleteEvent);
 
 //Autenticación con usuario en postgres
 /* 

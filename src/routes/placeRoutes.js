@@ -4,11 +4,11 @@ const placeController = require('../controllers/placeController');
 const authenticate = require('../controllers/authenticate');
 
 
-router.get('/', authenticate.authenticateTokenMongoDB, placeController.getPlaces);
-router.post('/', authenticate.authenticateTokenMongoDB, placeController.createPlace);
-router.get('/:id', authenticate.authenticateTokenMongoDB, placeController.getPlaceById);
-router.put('/:id', authenticate.authenticateTokenMongoDB, placeController.updatePlace);
-router.delete('/delete/:id', authenticate.authenticateTokenMongoDB, placeController.deletePlace);
+router.get('/', placeController.getPlaces);
+router.post('/', placeController.createPlace);
+router.get('/:id', placeController.getPlaceById);
+router.put('/:id', placeController.updatePlace);
+router.delete('/delete/:id', placeController.deletePlace);
 
 //Autenticación con usuario en postgres
 /* 
