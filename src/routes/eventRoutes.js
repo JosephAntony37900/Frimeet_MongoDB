@@ -8,7 +8,7 @@ router.get('/', authenticate.authenticateTokenMongoDB, eventController.getEvents
 router.post('/', authenticate.authenticateTokenMongoDB, eventController.createEvent);
 router.get('/:id', authenticate.authenticateTokenMongoDB, eventController.getEventById);
 router.put('/:id', authenticate.authenticateTokenMongoDB, eventController.updateEvent);
-router.delete('/:id', authenticate.authenticateTokenMongoDB, eventController.deleteEvent);
+router.delete('/delete/:id', authenticate.authenticateTokenMongoDB, eventController.deleteEvent);
 
 //Autenticación con usuario en postgres
 /* 

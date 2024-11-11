@@ -8,7 +8,7 @@ router.get('/', authenticate.authenticateTokenMongoDB, placeController.getPlaces
 router.post('/', authenticate.authenticateTokenMongoDB, placeController.createPlace);
 router.get('/:id', authenticate.authenticateTokenMongoDB, placeController.getPlaceById);
 router.put('/:id', authenticate.authenticateTokenMongoDB, placeController.updatePlace);
-router.delete('/:id', authenticate.authenticateTokenMongoDB, placeController.deletePlace);
+router.delete('/delete/:id', authenticate.authenticateTokenMongoDB, placeController.deletePlace);
 
 //Autenticación con usuario en postgres
 /* 
