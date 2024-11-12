@@ -9,7 +9,7 @@ const authenticate = require('../controllers/authenticate');
 router.get('/', placeController.getPlaces);
 router.post('/', upload.array('images'), placeController.createPlace); 
 router.get('/:id', placeController.getPlaceById);
-router.put('/:id', placeController.updatePlace);
+router.put('/update/:id', upload.array('images'), placeController.updatePlace);
 router.delete('/delete/:id', placeController.deletePlace);
 
 module.exports = router;

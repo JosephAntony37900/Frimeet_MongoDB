@@ -1,7 +1,7 @@
 const Place = require('../models/Place');
 const mongoose = require('mongoose');
 const cloudinary = require('../config/cloudinary');
-const path = require('path')
+const path = require('path');
 
 // Obtener todos los lugares
 exports.getPlaces = async (req, res) => {
@@ -56,9 +56,6 @@ exports.createPlace = async (req, res) => {
   }
 };
 
-
-  
-
 // Obtener un lugar por ID
 exports.getPlaceById = async (req, res) => {
   const placeId = req.params.id;
@@ -82,12 +79,46 @@ exports.updatePlace = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(placeId)) {
     return res.status(400).json({ message: 'ID de lugar no válido' });
   }
+  
+  const { name, description, address, tag, types } = req.body;
+  let imageUrls = req.body.images ? req.body.images : [];
+
+  if (!name || !description || !address || !tag || !types) {
+    return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+  }
+
   try {
-    const place = await Place.findByIdAndUpdate(placeId, req.body, { new: true });
-    if (!place) {
+    if (req.files && req.files.length > 0) {
+      for (let file of req.files) {
+        await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({ folder: 'places' },
+            (error, result) => {
+              if (result) {
+                imageUrls.push(result.secure_url);
+                resolve();
+              } else {
+                console.error('Error subiendo imagen a Cloudinary:', error);
+                reject(new Error('Error al subir la imagen'));
+              }
+            });
+          stream.end(file.buffer);
+        });
+      }
+    }
+
+    const updatedPlace = await Place.findByIdAndUpdate(placeId, {
+      name,
+      description,
+      address,
+      tag,
+      types,
+      images: imageUrls
+    }, { new: true });
+
+    if (!updatedPlace) {
       return res.status(404).json({ message: 'Lugar no encontrado' });
     }
-    res.json(place);
+    res.json(updatedPlace);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
