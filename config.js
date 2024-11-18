@@ -5,7 +5,7 @@ const { Pool } = require('pg');
 dotenv.config();
 
 const uri = process.env.MONGODB_URI;
-const pgUri = process.env.POSTGRES_URL;
+const pgUri = process.env.POSTGRES_URL_FRIMEET;
 
 const connectDB = async () => {
   try {

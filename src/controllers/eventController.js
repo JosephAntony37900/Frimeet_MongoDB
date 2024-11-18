@@ -3,25 +3,32 @@ const Place = require('../models/Place');
 const mongoose = require('mongoose');
 const cloudinary = require('../config/cloudinary');
 const path = require('path');
+const { pool } = require('../../config');
+const { authenticateToken } = require('./authenticate');
 
 // Obtener todos los eventos
-exports.getEvents = async (req, res) => {
-  try {
-    const events = await Event.find().populate('idPlace');
-    res.json(events);
-  } catch (err) {
+exports.getEvents = async (req, res) => { 
+  try { 
+    // Ordenar primero por prioridad descendente y luego por fecha ascendente 
+    const events = await Event.find().populate('idPlace').sort({ prioridad: -1, date: 1 }); 
+    res.json(events); 
+  } catch (err) { 
     res.status(500).json({ message: err.message });
-  }
+  } 
 };
 
 // Crear un nuevo evento
 exports.createEvent = async (req, res) => {
-  const { name, maxPeoples, idPlace, date, description, price } = req.body;
+  const { name, maxPeoples, idPlace, startDate, endDate, description, price } = req.body;
+  const userId = req.user.sub;
+  const userRole = req.user.id_Rol;
   let imageUrls = [];
 
   try {
     console.log('Datos recibidos:', req.body);
-    // Obtener la dirección del lugar relacionado
+    console.log('User ID:', userId);
+    console.log('User Role:', userRole);
+
     const place = await Place.findById(idPlace);
     if (!place) {
       return res.status(400).json({ message: 'Lugar no encontrado' });
@@ -51,11 +58,14 @@ exports.createEvent = async (req, res) => {
       name,
       maxPeoples,
       idPlace,
-      date,
+      startDate,
+      endDate,
       description,
       address: place.address,
       price,
-      images: imageUrls
+      images: imageUrls,
+      userOwner: userId,
+      prioridad: userRole
     });
 
     const result = await newEvent.save();
@@ -68,6 +78,73 @@ exports.createEvent = async (req, res) => {
   }
 };
 
+
+// Unirse a un evento
+exports.joinEvent = async (req, res) => {
+  const eventId = req.params.id;
+  const userId = req.user.sub; // Obtener el ID del usuario desde el token
+
+  if (!mongoose.Types.ObjectId.isValid(eventId)) {
+    return res.status(400).json({ message: 'ID de evento no válido' });
+  }
+
+  try {
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: 'Evento no encontrado' });
+    }
+
+    // Verificar si el usuario ya está en la lista de asistentes
+    if (event.attendees.includes(userId)) {
+      return res.status(400).json({ message: 'Ya estás inscrito en este evento' });
+    }
+
+    // Verificar si el evento ha alcanzado el máximo de personas
+    if (event.attendees.length >= event.maxPeoples) {
+      return res.status(400).json({ message: 'El evento ha alcanzado el máximo de asistentes' });
+    }
+
+    // Agregar el usuario a la lista de asistentes
+    event.attendees.push(userId);
+    event.willAttend = event.attendees.length;
+    await event.save();
+
+    res.status(200).json({ message: 'Te has unido al evento exitosamente' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Salirse de un evento
+exports.leaveEvent = async (req, res) => {
+  const eventId = req.params.id;
+  const userId = req.user.sub; // Obtener el ID del usuario desde el token
+
+  if (!mongoose.Types.ObjectId.isValid(eventId)) {
+    return res.status(400).json({ message: 'ID de evento no válido' });
+  }
+
+  try {
+    const event = await Event.findById(eventId);
+    if (!event) {
+      return res.status(404).json({ message: 'Evento no encontrado' });
+    }
+
+    // Verificar si el usuario está en la lista de asistentes
+    if (!event.attendees.includes(userId)) {
+      return res.status(400).json({ message: 'No estás inscrito en este evento' });
+    }
+
+    // Eliminar el usuario de la lista de asistentes
+    event.attendees = event.attendees.filter(attendee => attendee !== userId);
+    event.willAttend = event.attendees.length;
+    await event.save();
+
+    res.status(200).json({ message: 'Te has salido del evento exitosamente' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 // Obtener un evento por ID
 exports.getEventById = async (req, res) => {
@@ -83,6 +160,20 @@ exports.getEventById = async (req, res) => {
     res.json(event);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+// Obtener eventos creados por un usuario específico
+exports.getEventsByUser = async (req, res) => {
+  const userId = req.user.sub; // Obtener el ID del usuario desde el token
+  try {
+    const events = await Event.find({ userOwner: userId });
+    if (events.length === 0) {
+      return res.status(404).json({ message: 'No tienes eventos creados' });
+    }
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
