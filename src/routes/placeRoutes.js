@@ -4,15 +4,20 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const placeController = require('../controllers/placeController');
-const authenticate = require('../controllers/authenticate');
+const { authenticateToken } = require('../controllers/authenticate');
 
-router.get('/', placeController.getPlaces);
-router.post('/', upload.array('images'), placeController.createPlace); 
-router.get('/:id', placeController.getPlaceById);
-router.put('/:id', placeController.updatePlace);
-router.delete('/delete/:id', placeController.deletePlace);
+router.get('/', authenticateToken, placeController.getPlaces);
+router.get('/approved', authenticateToken, placeController.getApprovedPlaces);
+router.post('/', authenticateToken, upload.array('images'), placeController.createPlace); 
+router.get('/:id', authenticateToken, placeController.getPlaceById);
+router.put('/update/:id', authenticateToken, upload.array('images'), placeController.updatePlace);
+router.delete('/delete/:id', authenticateToken, placeController.deletePlace);
+router.get('/pending/places', authenticateToken, placeController.getPendingPlaces);
+router.put('/approve/:id', authenticateToken, placeController.approvePlace);
+router.get('/users/places', authenticateToken, placeController.getPlacesByUser);
 
 module.exports = router;
+
 
 
 //Autenticación con usuario en postgres

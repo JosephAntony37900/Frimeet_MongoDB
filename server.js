@@ -4,6 +4,24 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const multer = require('multer');
 const upload = multer();
+const cron = require('node-cron');
+const Event = require('./src/models/Event');
+
+// Programar una tarea para ejecutarse todos los días a medianoche
+cron.schedule('0 0 * * *', async () => {
+  try {
+    const now = new Date();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1); // Un día antes
+
+    // Buscar y eliminar eventos cuyo endDate sea anterior a ayer
+    const result = await Event.deleteMany({ endDate: { $lt: yesterday } });
+    console.log(`Eventos eliminados: ${result.deletedCount}`);
+  } catch (err) {
+    console.error('Error eliminando eventos:', err.message);
+  }
+});
+
 
 dotenv.config();
 

@@ -8,7 +8,9 @@ const placeSchema = new mongoose.Schema({
   tag: { type: String, required: true },
   totalStarts: { type: Number, default: 0 },
   totalOpinions: { type: Number, default: 0 },
-  images: [String] // Array de URLs de imágenes
+  images: [String], // Array de URLs de imágenes
+  approve: { type: Boolean, default: null },
+  userOwner: { type: Number, required: true }
 });
 
 const Place = mongoose.model('Place', placeSchema);
