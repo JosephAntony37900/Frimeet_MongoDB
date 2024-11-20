@@ -36,7 +36,7 @@ exports.createUser = async (req, res) => {
       //token: token 
     });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ message:  err.message });
   }
 };
 

@@ -68,6 +68,8 @@ exports.createEvent = async (req, res) => {
       prioridad: userRole
     });
 
+    console.log('eventito: ',newEvent)
+
     const result = await newEvent.save();
     res.status(201).json({
       message: "Evento creado exitosamente",

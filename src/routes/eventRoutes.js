@@ -27,4 +27,3 @@ router.put('/:id', authenticate.authenticateToken, eventController.updateEvent);
 router.delete('/:id', authenticate.authenticateToken, eventController.deleteEvent);
 */
 
-
