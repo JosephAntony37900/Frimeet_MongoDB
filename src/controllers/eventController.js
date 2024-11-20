@@ -58,6 +58,8 @@ exports.createEvent = async (req, res) => {
       images: imageUrls
     });
 
+    console.log('eventito: ',newEvent)
+
     const result = await newEvent.save();
     res.status(201).json({
       message: "Evento creado exitosamente",

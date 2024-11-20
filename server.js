@@ -39,11 +39,15 @@ const startServer = async () => {
   const eventRoutes = require('./src/routes/eventRoutes');
   const reviewRoutes = require('./src/routes/reviewsRoutes');
   const reminderRoutes = require('./src/routes/reminderRoutes');
+  const tokensMPRoutes = require('./src/routes/tokensMPRoutes')
+  const paymentMethodRoutes = require('./src/routes/paymentMethodRoutes')
   app.use('/api/users', userRoutes);
   app.use('/api/places', placeRoutes);
   app.use('/api/events', eventRoutes);
   app.use('/api/reviews', reviewRoutes);
   app.use('/api/reminders', reminderRoutes);
+  app.use('/api/tokens', tokensMPRoutes);
+  app.use('/api/payments', paymentMethodRoutes)
 
   // Inicia el servidor
   app.listen(port, () => {

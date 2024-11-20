@@ -14,13 +14,3 @@ router.put('/:id', eventController.updateEvent);
 router.delete('/delete/:id', eventController.deleteEvent);
 
 module.exports = router;
-//Autenticación con usuario en postgres
-/* 
-router.get('/', authenticate.authenticateToken, eventController.getEvents);
-router.post('/', authenticate.authenticateToken, eventController.createEvent);
-router.get('/:id', authenticate.authenticateToken, eventController.getEventById);
-router.put('/:id', authenticate.authenticateToken, eventController.updateEvent);
-router.delete('/:id', authenticate.authenticateToken, eventController.deleteEvent);
-*/
-
-
