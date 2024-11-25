@@ -10,7 +10,11 @@ const placeSchema = new mongoose.Schema({
   totalOpinions: { type: Number, default: 0 },
   images: [String], // Array de URLs de imágenes
   approve: { type: Boolean, default: null },
-  userOwner: { type: Number, required: false }
+  userOwner: { type: Number, required: false },
+  coordinates: {
+    lat: {type: Number, required:true},
+    lng: {type: Number, requirer: true},
+  },
 });
 
 const Place = mongoose.model('Place', placeSchema);

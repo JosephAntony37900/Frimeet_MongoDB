@@ -17,7 +17,7 @@ exports.getPlaces = async (req, res) => {
 
 // Crear un nuevo lugar
 exports.createPlace = async (req, res) => {
-  const { name, description, address, tag, types } = req.body;
+  const { name, description, address, tag, types, coordinates } = req.body;
   const userId = req.user.sub; // Obtener el ID del usuario del token JWT
   let imageUrls = [];
 
@@ -47,7 +47,8 @@ exports.createPlace = async (req, res) => {
       tag,
       types,
       images: imageUrls,
-      userOwner: userId // Guardar el ID del usuario
+      userOwner: userId, // Guardar el ID del usuario
+      coordinates 
     });
 
     const savedPlace = await newPlace.save();

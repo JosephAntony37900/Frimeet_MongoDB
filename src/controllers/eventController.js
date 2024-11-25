@@ -7,19 +7,19 @@ const { pool } = require('../../config');
 const { authenticateToken } = require('./authenticate');
 
 // Obtener todos los eventos
-exports.getEvents = async (req, res) => { 
-  try { 
-    // Ordenar primero por prioridad descendente y luego por fecha ascendente 
-    const events = await Event.find().populate('idPlace').sort({ prioridad: -1, date: 1 }); 
-    res.json(events); 
-  } catch (err) { 
+exports.getEvents = async (req, res) => {
+  try {
+    // Ordenar primero por prioridad descendente y luego por fecha ascendente
+    const events = await Event.find().populate('idPlace').sort({ prioridad: -1, date: 1 });
+    res.json(events);
+  } catch (err) {
     res.status(500).json({ message: err.message });
-  } 
+  }
 };
 
 // Crear un nuevo evento
 exports.createEvent = async (req, res) => {
-  const { name, maxPeoples, idPlace, startDate, endDate, description, price } = req.body;
+  const { name, maxPeoples, idPlace, endDate, description, price, address, coordinates, date } = req.body;
   const userId = req.user.sub;
   const userRole = req.user.id_Rol;
   let imageUrls = [];
@@ -29,9 +29,12 @@ exports.createEvent = async (req, res) => {
     console.log('User ID:', userId);
     console.log('User Role:', userRole);
 
-    const place = await Place.findById(idPlace);
-    if (!place) {
-      return res.status(400).json({ message: 'Lugar no encontrado' });
+    // Validar idPlace solo si no es "0"
+    if (idPlace && idPlace !== "0") {
+      const place = await Place.findById(idPlace);
+      if (!place) {
+        return res.status(400).json({ message: 'Lugar no encontrado' });
+      }
     }
 
     // Subir imágenes a Cloudinary
@@ -54,21 +57,23 @@ exports.createEvent = async (req, res) => {
     }
     console.log('URL de imágenes:', imageUrls);
 
+    // Crear nuevo evento
     const newEvent = new Event({
       name,
       maxPeoples,
-      idPlace,
-      startDate,
+      idPlace: idPlace !== "0" ? idPlace : undefined, // No enviar idPlace si es "0"
       endDate,
       description,
-      address: place.address,
+      address,
       price,
       images: imageUrls,
       userOwner: userId,
-      prioridad: userRole
+      prioridad: userRole,
+      coordinates,
+      date
     });
 
-    console.log('eventito: ',newEvent)
+    console.log('eventito: ', newEvent);
 
     const result = await newEvent.save();
     res.status(201).json({
@@ -79,6 +84,8 @@ exports.createEvent = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
 
 
 // Unirse a un evento
