@@ -17,9 +17,8 @@ exports.getEvents = async (req, res) => {
   }
 };
 
-// Crear un nuevo evento
 exports.createEvent = async (req, res) => {
-  const { name, maxPeoples, idPlace, endDate, description, price, address, coordinates, date } = req.body;
+  const { name, maxPeoples, idPlace, endDate, description, price, address, coordinates, date, tag } = req.body;
   const userId = req.user.sub;
   const userRole = req.user.id_Rol;
   let imageUrls = [];
@@ -70,10 +69,11 @@ exports.createEvent = async (req, res) => {
       userOwner: userId,
       prioridad: userRole,
       coordinates,
-      date
+      date,
+      tag: Array.isArray(tag) ? tag : []  // Asegurarse de que `tag` sea una lista
     });
 
-    console.log('eventito: ', newEvent);
+    console.log('Evento creado:', newEvent);
 
     const result = await newEvent.save();
     res.status(201).json({
@@ -84,6 +84,7 @@ exports.createEvent = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 
 

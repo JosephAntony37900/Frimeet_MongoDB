@@ -20,7 +20,7 @@ const eventSchema = new mongoose.Schema({
     lng: {type: Number, requirer: true},
   },
   date: { type: Date, required: true},
-  tag: [{ type: String}],
+  tag: [{ type: String}]
 });
 
 const Event = mongoose.model('Event', eventSchema);
