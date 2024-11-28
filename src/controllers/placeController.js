@@ -209,3 +209,70 @@ exports.approvePlace = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.suggestPlace = async (req, res) => {
+  const etiquetas = {
+    1: "Comida Rapida",
+    2: "Heladeria",
+    3: "Cafeteria",
+    4: "comida",
+    5: "Bar",
+    6: "Boliche",
+    7: "Karaoke",
+    8: "Concierto",
+    9: "Grupo musical",
+    10: "Teatro",
+    11: "Arte",
+    12: "Galeria",
+    13: "Museo",
+    14: "Planetario",
+    15: "Mirador",
+    16: "Astronomia",
+    17: "Historia",
+    18: "Paleontologia",
+    19: "Animales",
+    20: "Plantas",
+    21: "Naturaleza",
+    22: "Senderismo",
+    23: "Exploración",
+    24: "Campamento",
+    25: "Exploracion urbana",
+    26: "Escape room",
+    27: "Sala de juegos",
+    28: "Cine",
+    29: "Amigos",
+    30: "Parejas",
+    31: "parques"
+  };
+
+  const { tags, type } = req.body;
+
+  if (!Array.isArray(tags) || tags.length === 0) {
+    return res.status(400).json({ message: "El arreglo de etiquetas es requerido y no puede estar vacío" });
+  }
+  if (!type) {
+    return res.status(400).json({ message: "El tipo es requerido" });
+  }
+
+  try {
+    const centralTag = Math.round(tags.reduce((sum, tag) => sum + tag, 0) / tags.length);// Calcular etiqueta central (promedio redondeado)
+
+    const tagString = etiquetas[centralTag]
+
+    // Consulta en la base de datos
+    const places = await Place.find({ tag: tagString, types: type });
+
+    if (places.length === 0) {
+      return res.status(404).json({ message: "No se encontraron lugares para las etiquetas y tipo proporcionados" });
+    }
+
+    res.json({
+      message: "Lugares sugeridos encontrados",
+      places,
+    });
+    
+  } catch (err) {
+    console.error("Error en suggestPlace:", err.message);
+    res.status(500).json({ message: "Ocurrió un error al sugerir lugares" });
+  }
+};

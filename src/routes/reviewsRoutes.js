@@ -7,5 +7,6 @@ router.post('/', authenticate.authenticateToken, reviewController.createReview);
 router.get('/place/:id', authenticate.authenticateToken, reviewController.getReviewsByIdPlace);
 router.get('/event/:id', authenticate.authenticateToken, reviewController.getReviewsByIdEvent);
 router.delete('/:id', authenticate.authenticateToken, reviewController.deleteReview);
+router.get('/user', authenticate.authenticateToken, reviewController.getReviewsByUser);
 
 module.exports = router;

@@ -127,12 +127,12 @@ exports.joinEvent = async (req, res) => {
 // Salirse de un evento
 exports.leaveEvent = async (req, res) => {
   const eventId = req.params.id;
-  const userId = req.user.sub; // Obtener el ID del usuario desde el token
+  const userId = parseInt(req.user.sub, 10); // Obtener el ID del usuario desde el token y convertirlo a número
 
   if (!mongoose.Types.ObjectId.isValid(eventId)) {
     return res.status(400).json({ message: 'ID de evento no válido' });
   }
-
+  console.log('Id del usuario que desea salirse: ', userId);
   try {
     const event = await Event.findById(eventId);
     if (!event) {
@@ -154,6 +154,7 @@ exports.leaveEvent = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Obtener un evento por ID
 exports.getEventById = async (req, res) => {
@@ -219,3 +220,18 @@ exports.deleteEvent = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Obtener eventos a los que asistirá el usuario actual
+exports.getAttendingEvents = async (req, res) => {
+  const userId = req.user.sub; // Obtener el ID del usuario desde el token
+  try {
+    const events = await Event.find({ attendees: userId });
+    if (events.length === 0) {
+      return res.status(404).json({ message: 'No estás inscrito en ningún evento' });
+    }
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

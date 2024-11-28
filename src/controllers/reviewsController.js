@@ -137,3 +137,33 @@ exports.deleteReview = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Obtener todas las reseñas de un usuario
+exports.getReviewsByUser = async (req, res) => {
+  const userId = req.user.sub;
+  
+  if (!userId) {
+    return res.status(400).json({ message: 'ID de usuario no válido.' });
+  }
+  
+  try {
+    const reviews = await Review.find({ userId: userId });
+    
+    // Obtener los nombres de los lugares correspondientes a las reseñas
+    const reviewsWithPlaceNames = await Promise.all(reviews.map(async (review) => {
+      let placeName = '';
+      if (review.idPlace) {
+        const place = await Place.findById(review.idPlace);
+        if (place) {
+          placeName = place.name;
+        }
+      }
+      return { ...review._doc, placeName };
+    }));
+    
+    res.json(reviewsWithPlaceNames);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+

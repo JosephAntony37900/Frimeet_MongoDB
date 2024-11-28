@@ -7,6 +7,7 @@ const placeController = require('../controllers/placeController');
 const { authenticateToken } = require('../controllers/authenticate');
 
 router.get('/', placeController.getPlaces);
+router.post('/suggest', placeController.suggestPlace);
 router.get('/approved', authenticateToken, placeController.getApprovedPlaces);
 router.post('/', authenticateToken, upload.array('images'), placeController.createPlace); 
 router.get('/:id',  placeController.getPlaceById);

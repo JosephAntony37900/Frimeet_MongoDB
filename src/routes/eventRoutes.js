@@ -12,6 +12,7 @@ router.get('/:id',  eventController.getEventById);
 router.put('/:id', authenticateToken, upload.array('images'), eventController.updateEvent);
 router.delete('/delete/:id', authenticateToken, eventController.deleteEvent);
 router.get('/user/events', authenticateToken, eventController.getEventsByUser);
+router.get('/user/attending', authenticateToken, eventController.getAttendingEvents);
 router.post('/:id/join', authenticateToken, eventController.joinEvent); // Unirse a un evento
 router.post('/:id/leave', authenticateToken, eventController.leaveEvent); // Salirse de un evento
 

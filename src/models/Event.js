@@ -19,7 +19,8 @@ const eventSchema = new mongoose.Schema({
     lat: {type: Number, required:true},
     lng: {type: Number, requirer: true},
   },
-  date: { type: Date, required: true}
+  date: { type: Date, required: true},
+  tag: [{ type: String}],
 });
 
 const Event = mongoose.model('Event', eventSchema);
