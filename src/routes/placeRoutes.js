@@ -6,11 +6,11 @@ const upload = multer({ storage });
 const placeController = require('../controllers/placeController');
 const { authenticateToken } = require('../controllers/authenticate');
 
-router.get('/', placeController.getPlaces);
-router.post('/suggest', placeController.suggestPlace);
+router.get('/', authenticateToken,placeController.getPlaces);
+router.post('/suggest', authenticateToken,placeController.suggestPlace);
 router.get('/approved', authenticateToken, placeController.getApprovedPlaces);
 router.post('/', authenticateToken, upload.array('images'), placeController.createPlace); 
-router.get('/:id',  placeController.getPlaceById);
+router.get('/:id',  authenticateToken,placeController.getPlaceById);
 router.put('/update/:id', authenticateToken, upload.array('images'), placeController.updatePlace);
 router.delete('/delete/:id', authenticateToken, placeController.deletePlace);
 router.get('/pending/places', authenticateToken, placeController.getPendingPlaces);
