@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 
 const reminderSchema = new mongoose.Schema ({
+    nameEvent: {type: String, required: true},
+    titule: { type: String, required: true},
     content: { type: String, required: true},
-    idEvento: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true},
-    date: { type: Date, required: true }, // Fecha y hora para enviar el recordatorio
+    idEvent: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true}, // de aquí se extraira el nombre de los eventos
     attendees: [{ type: Number }], // Lista de IDs de los asistentes
 })
 

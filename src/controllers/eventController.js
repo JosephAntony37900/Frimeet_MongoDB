@@ -7,19 +7,18 @@ const { pool } = require('../../config');
 const { authenticateToken } = require('./authenticate');
 
 // Obtener todos los eventos
-exports.getEvents = async (req, res) => { 
-  try { 
-    // Ordenar primero por prioridad descendente y luego por fecha ascendente 
-    const events = await Event.find().populate('idPlace').sort({ prioridad: -1, date: 1 }); 
-    res.json(events); 
-  } catch (err) { 
+exports.getEvents = async (req, res) => {
+  try {
+    // Ordenar primero por prioridad descendente y luego por fecha ascendente
+    const events = await Event.find().populate('idPlace').sort({ prioridad: -1, date: 1 });
+    res.json(events);
+  } catch (err) {
     res.status(500).json({ message: err.message });
-  } 
+  }
 };
 
-// Crear un nuevo evento
 exports.createEvent = async (req, res) => {
-  const { name, maxPeoples, idPlace, startDate, endDate, description, price } = req.body;
+  const { name, maxPeoples, idPlace, endDate, description, price, address, coordinates, date, tag } = req.body;
   const userId = req.user.sub;
   const userRole = req.user.id_Rol;
   let imageUrls = [];
@@ -29,9 +28,12 @@ exports.createEvent = async (req, res) => {
     console.log('User ID:', userId);
     console.log('User Role:', userRole);
 
-    const place = await Place.findById(idPlace);
-    if (!place) {
-      return res.status(400).json({ message: 'Lugar no encontrado' });
+    // Validar idPlace solo si no es "0"
+    if (idPlace && idPlace !== "0") {
+      const place = await Place.findById(idPlace);
+      if (!place) {
+        return res.status(400).json({ message: 'Lugar no encontrado' });
+      }
     }
 
     // Subir imágenes a Cloudinary
@@ -54,19 +56,24 @@ exports.createEvent = async (req, res) => {
     }
     console.log('URL de imágenes:', imageUrls);
 
+    // Crear nuevo evento
     const newEvent = new Event({
       name,
       maxPeoples,
-      idPlace,
-      startDate,
+      idPlace: idPlace !== "0" ? idPlace : undefined, // No enviar idPlace si es "0"
       endDate,
       description,
-      address: place.address,
+      address,
       price,
       images: imageUrls,
       userOwner: userId,
-      prioridad: userRole
+      prioridad: userRole,
+      coordinates,
+      date,
+      tag: Array.isArray(tag) ? tag : []  // Asegurarse de que `tag` sea una lista
     });
+
+    console.log('Evento creado:', newEvent);
 
     const result = await newEvent.save();
     res.status(201).json({
@@ -77,7 +84,6 @@ exports.createEvent = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
 
 // Unirse a un evento
 exports.joinEvent = async (req, res) => {
@@ -118,12 +124,12 @@ exports.joinEvent = async (req, res) => {
 // Salirse de un evento
 exports.leaveEvent = async (req, res) => {
   const eventId = req.params.id;
-  const userId = req.user.sub; // Obtener el ID del usuario desde el token
+  const userId = parseInt(req.user.sub, 10); // Obtener el ID del usuario desde el token y convertirlo a número
 
   if (!mongoose.Types.ObjectId.isValid(eventId)) {
     return res.status(400).json({ message: 'ID de evento no válido' });
   }
-
+  console.log('Id del usuario que desea salirse: ', userId);
   try {
     const event = await Event.findById(eventId);
     if (!event) {
@@ -145,6 +151,7 @@ exports.leaveEvent = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Obtener un evento por ID
 exports.getEventById = async (req, res) => {
@@ -210,3 +217,18 @@ exports.deleteEvent = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+// Obtener eventos a los que asistirá el usuario actual
+exports.getAttendingEvents = async (req, res) => {
+  const userId = req.user.sub; // Obtener el ID del usuario desde el token
+  try {
+    const events = await Event.find({ attendees: userId });
+    if (events.length === 0) {
+      return res.status(404).json({ message: 'No estás inscrito en ningún evento' });
+    }
+    res.json(events);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+

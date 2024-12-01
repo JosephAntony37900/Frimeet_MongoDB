@@ -17,7 +17,7 @@ exports.getPlaces = async (req, res) => {
 
 // Crear un nuevo lugar
 exports.createPlace = async (req, res) => {
-  const { name, description, address, tag, types } = req.body;
+  const { name, description, address, tag, types, coordinates } = req.body;
   const userId = req.user.sub; // Obtener el ID del usuario del token JWT
   let imageUrls = [];
 
@@ -44,10 +44,11 @@ exports.createPlace = async (req, res) => {
       name,
       description,
       address,
-      tag,
+      tag: Array.isArray(tag) ? tag : [tag], // Asegurarse de que `tags` sea un arreglo
       types,
       images: imageUrls,
-      userOwner: userId // Guardar el ID del usuario
+      userOwner: userId, // Guardar el ID del usuario
+      coordinates
     });
 
     const savedPlace = await newPlace.save();
@@ -59,6 +60,7 @@ exports.createPlace = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Obtener un lugar por ID
 exports.getPlaceById = async (req, res) => {
@@ -97,7 +99,7 @@ exports.updatePlace = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(placeId)) {
     return res.status(400).json({ message: 'ID de lugar no válido' });
   }
-  
+
   const { name, description, address, tag, types } = req.body;
   let imageUrls = req.body.images ? req.body.images : [];
 
@@ -128,7 +130,7 @@ exports.updatePlace = async (req, res) => {
       name,
       description,
       address,
-      tag,
+      tag: Array.isArray(tag) ? tag : [tag], // Asegurarse de que `tags` sea un arreglo
       types,
       images: imageUrls
     }, { new: true });
@@ -141,6 +143,7 @@ exports.updatePlace = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Eliminar un lugar por ID
 exports.deletePlace = async (req, res) => {
@@ -206,5 +209,94 @@ exports.approvePlace = async (req, res) => {
     }
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+exports.suggestPlace = async (req, res) => {
+  const etiquetas = {
+    1: "Comida Rapida",
+    2: "Heladeria",
+    3: "Cafeteria",
+    4: "comida",
+    5: "Bar",
+    6: "Boliche",
+    7: "Karaoke",
+    8: "Concierto",
+    9: "Grupo musical",
+    10: "Teatro",
+    11: "Arte",
+    12: "Galeria",
+    13: "Museo",
+    14: "Planetario",
+    15: "Mirador",
+    16: "Astronomia",
+    17: "Historia",
+    18: "Paleontologia",
+    19: "Animales",
+    20: "Plantas",
+    21: "Naturaleza",
+    22: "Senderismo",
+    23: "Exploración",
+    24: "Campamento",
+    25: "Exploracion urbana",
+    26: "Escape room",
+    27: "Sala de juegos",
+    28: "Cine",
+    29: "Amigos",
+    30: "Parejas",
+    31: "parques"
+  };
+
+  const { tags, type } = req.body;
+
+  if (!Array.isArray(tags) || tags.length === 0) {
+    return res.status(400).json({ message: "El arreglo de etiquetas es requerido y no puede estar vacío" });
+  }
+  if (!type) {
+    return res.status(400).json({ message: "El tipo es requerido" });
+  }
+
+  try {
+    const centralTag = Math.round(tags.reduce((sum, tag) => sum + tag, 0) / tags.length);// Calcular etiqueta central (promedio redondeado)
+
+    const tagString = etiquetas[centralTag]
+
+    // Consulta en la base de datos
+    const places = await Place.find({ tag: tagString, types: type });
+
+    if (places.length === 0) {
+      return res.status(404).json({ message: "No se encontraron lugares para las etiquetas y tipo proporcionados" });
+    }
+
+    res.json({
+      message: "Lugares sugeridos encontrados",
+      places,
+    });
+    
+  } catch (err) {
+    console.error("Error en suggestPlace:", err.message);
+    res.status(500).json({ message: "Ocurrió un error al sugerir lugares" });
+  }
+};
+
+// Obtener un lugar aleatorio
+exports.getRandomPlace = async (req, res) => {
+  try {
+    const count = await Place.countDocuments();
+    console.log("Total de documentos:", count); // Log de total de documentos
+    if (count === 0) {
+      return res.status(404).json({ message: "No hay lugares disponibles" });
+    }
+
+    const randomIndex = Math.floor(Math.random() * count);
+    console.log("Índice aleatorio:", randomIndex); // Log del índice aleatorio
+
+    const randomPlace = await Place.findOne().skip(randomIndex);
+    console.log("Lugar aleatorio encontrado:", randomPlace); // Log del lugar encontrado
+
+    res.json(randomPlace);
+  } catch (err) {
+    console.error("Error al obtener un lugar aleatorio:", err.message);
+    res.status(500).json({ message: "Ocurrió un error al obtener un lugar aleatorio" });
   }
 };

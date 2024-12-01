@@ -1,10 +1,12 @@
 const Reminder = require('../models/Reminder');
 const Event = require('../models/Event');
 const mongoose = require('mongoose');
+const axios = require('axios');  // Usar axios para hacer solicitudes HTTP
 
 // Crear un nuevo recordatorio
 exports.createReminder = async (req, res) => {
-  const { content, idEvent, date } = req.body;
+  const { content, idEvent, titule } = req.body;
+  const token = req.headers.authorization; // Obtener el token JWT de los encabezados
 
   if (!mongoose.Types.ObjectId.isValid(idEvent)) {
     return res.status(400).json({ message: 'ID de evento no válido.' });
@@ -17,13 +19,29 @@ exports.createReminder = async (req, res) => {
     }
 
     const newReminder = new Reminder({
+      nameEvent: event.name,
       content,
       idEvent,
-      date,
+      titule,
       attendees: event.attendees, // Agregar lista de asistentes del evento
     });
 
     const result = await newReminder.save();
+
+    // Actualizar recordatorios en PostgreSQL para cada asistente
+    const attendees = event.attendees;  // Lista de IDs de usuarios en PostgreSQL
+    for (const userId of attendees) {
+      await axios.patch(`http://127.0.0.1:5000/users/${userId}/addReminder`, {
+        eventReminder: event.name,
+        ContentReminder: content,
+        nameReminder: titule
+      }, {
+        headers: {
+          Authorization: token  // Incluir el token JWT en los encabezados
+        }
+      });
+    }
+
     res.status(201).json({
       message: "Recordatorio creado con éxito",
       reminderId: result._id
@@ -54,23 +72,5 @@ exports.deleteReminder = async (req, res) => {
 const sendReminder = async (reminder) => {
   const { content, attendees } = reminder;
   
-  // Aquí puedes implementar la lógica para enviar notificaciones
-  // a los asistentes. Por ejemplo, puedes usar una API de correo electrónico
-  // o SMS para enviar los recordatorios.
   console.log(`Enviando recordatorio: ${content} a los asistentes: ${attendees.join(', ')}`);
 };
-
-// Programar el envío de recordatorios
-const scheduleReminders = async () => {
-  const reminders = await Reminder.find({});
-  reminders.forEach(reminder => {
-    const now = new Date();
-    const timeToReminder = reminder.date - now;
-
-    if (timeToReminder > 0) {
-      setTimeout(() => sendReminder(reminder), timeToReminder);
-    }
-  });
-};
-
-scheduleReminders();
