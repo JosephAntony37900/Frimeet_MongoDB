@@ -36,7 +36,7 @@ exports.createPayment = async (req, res) => {
 		  res.status(201).json({
 			message: "SE PAGOOOOOOOOOOO",
 			cuerpo: resp.data
-		  });
+		});
 		  
 	} catch (err) {
 		console.error('Algo slaio mal:(')

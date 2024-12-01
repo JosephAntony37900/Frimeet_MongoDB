@@ -282,13 +282,17 @@ exports.suggestPlace = async (req, res) => {
 // Obtener un lugar aleatorio
 exports.getRandomPlace = async (req, res) => {
   try {
-    const count = await Place.countDocuments(); // Obtener el total de documentos
+    const count = await Place.countDocuments();
+    console.log("Total de documentos:", count); // Log de total de documentos
     if (count === 0) {
       return res.status(404).json({ message: "No hay lugares disponibles" });
     }
 
-    const randomIndex = Math.floor(Math.random() * count); // Generar un índice aleatorio
-    const randomPlace = await Place.findOne().skip(randomIndex); // Saltar a ese índice
+    const randomIndex = Math.floor(Math.random() * count);
+    console.log("Índice aleatorio:", randomIndex); // Log del índice aleatorio
+
+    const randomPlace = await Place.findOne().skip(randomIndex);
+    console.log("Lugar aleatorio encontrado:", randomPlace); // Log del lugar encontrado
 
     res.json(randomPlace);
   } catch (err) {
@@ -296,4 +300,3 @@ exports.getRandomPlace = async (req, res) => {
     res.status(500).json({ message: "Ocurrió un error al obtener un lugar aleatorio" });
   }
 };
-
