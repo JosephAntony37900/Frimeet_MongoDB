@@ -85,10 +85,6 @@ exports.createEvent = async (req, res) => {
   }
 };
 
-
-
-
-
 // Unirse a un evento
 exports.joinEvent = async (req, res) => {
   const eventId = req.params.id;

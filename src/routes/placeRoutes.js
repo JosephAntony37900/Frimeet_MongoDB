@@ -16,5 +16,7 @@ router.delete('/delete/:id', authenticateToken, placeController.deletePlace);
 router.get('/pending/places', authenticateToken, placeController.getPendingPlaces);
 router.put('/approve/:id', authenticateToken, placeController.approvePlace);
 router.get('/users/places', authenticateToken, placeController.getPlacesByUser);
+router.get("/random", authenticateToken, placeController.getRandomPlace);
+
 
 module.exports = router;

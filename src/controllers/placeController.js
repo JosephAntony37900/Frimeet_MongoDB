@@ -44,11 +44,11 @@ exports.createPlace = async (req, res) => {
       name,
       description,
       address,
-      tag,
+      tag: Array.isArray(tag) ? tag : [tag], // Asegurarse de que `tags` sea un arreglo
       types,
       images: imageUrls,
       userOwner: userId, // Guardar el ID del usuario
-      coordinates 
+      coordinates
     });
 
     const savedPlace = await newPlace.save();
@@ -60,6 +60,7 @@ exports.createPlace = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Obtener un lugar por ID
 exports.getPlaceById = async (req, res) => {
@@ -98,7 +99,7 @@ exports.updatePlace = async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(placeId)) {
     return res.status(400).json({ message: 'ID de lugar no válido' });
   }
-  
+
   const { name, description, address, tag, types } = req.body;
   let imageUrls = req.body.images ? req.body.images : [];
 
@@ -129,7 +130,7 @@ exports.updatePlace = async (req, res) => {
       name,
       description,
       address,
-      tag,
+      tag: Array.isArray(tag) ? tag : [tag], // Asegurarse de que `tags` sea un arreglo
       types,
       images: imageUrls
     }, { new: true });
@@ -142,6 +143,7 @@ exports.updatePlace = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
 
 // Eliminar un lugar por ID
 exports.deletePlace = async (req, res) => {
@@ -276,3 +278,22 @@ exports.suggestPlace = async (req, res) => {
     res.status(500).json({ message: "Ocurrió un error al sugerir lugares" });
   }
 };
+
+// Obtener un lugar aleatorio
+exports.getRandomPlace = async (req, res) => {
+  try {
+    const count = await Place.countDocuments(); // Obtener el total de documentos
+    if (count === 0) {
+      return res.status(404).json({ message: "No hay lugares disponibles" });
+    }
+
+    const randomIndex = Math.floor(Math.random() * count); // Generar un índice aleatorio
+    const randomPlace = await Place.findOne().skip(randomIndex); // Saltar a ese índice
+
+    res.json(randomPlace);
+  } catch (err) {
+    console.error("Error al obtener un lugar aleatorio:", err.message);
+    res.status(500).json({ message: "Ocurrió un error al obtener un lugar aleatorio" });
+  }
+};
+
