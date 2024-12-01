@@ -6,9 +6,9 @@ const upload = multer({ storage });
 const eventController = require('../controllers/eventController');
 const { authenticateToken } = require('../controllers/authenticate');
 
-router.get('/', eventController.getEvents);
+router.get('/', authenticateToken,eventController.getEvents);
 router.post('/', authenticateToken, upload.array('images'), eventController.createEvent);
-router.get('/:id',  eventController.getEventById);
+router.get('/:id',  authenticateToken, eventController.getEventById);
 router.put('/:id', authenticateToken, upload.array('images'), eventController.updateEvent);
 router.delete('/delete/:id', authenticateToken, eventController.deleteEvent);
 router.get('/user/events', authenticateToken, eventController.getEventsByUser);
