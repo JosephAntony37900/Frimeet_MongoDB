@@ -100,12 +100,19 @@ exports.updatePlace = async (req, res) => {
     return res.status(400).json({ message: 'ID de lugar no válido' });
   }
 
-  const { name, description, address, tag, types } = req.body;
+  const { name, description, address, types } = req.body;
+  let { tag, coordinates, existingImages } = req.body;
   let imageUrls = req.body.images ? req.body.images : [];
 
-  if (!name || !description || !address || !tag || !types) { 
+  coordinates = coordinates ? JSON.parse(coordinates) : currentEvent.coordinates;
+
+
+  if (!name || !description || !address || !tag || !types || !coordinates) { 
     return res.status(400).json({ message: 'Todos los campos son obligatorios' });
   }
+
+  console.log('Campos recibidos:', { name, description, address, tag,types, coordinates, imageUrls });
+
 
   try {
     if (req.files && req.files.length > 0) {
@@ -132,6 +139,7 @@ exports.updatePlace = async (req, res) => {
       address,
       tag: Array.isArray(tag) ? tag : [tag], // Asegurarse de que `tags` sea un arreglo
       types,
+      coordinates,
       images: imageUrls
     }, { new: true });
 
